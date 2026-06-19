@@ -1,0 +1,6 @@
+[submodule "arch/lib"]
+	path = arch/lib
+	url = https://gitflic.ru/project/mikron-mik32/framework-mik32v2-sdk.git
+[submodule "tools/uploader"]
+	path = tools/uploader
+	url = https://gitflic.ru/project/mikron-mik32/mik32-uploader.git

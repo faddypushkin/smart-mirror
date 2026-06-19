@@ -1,0 +1,9 @@
+*.d
+*.lst
+*.o
+*.bin
+*.elf
+*.hex
+*.map
+
+/tools/sc-dt/*
