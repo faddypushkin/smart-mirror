@@ -6,4 +6,4 @@
 *.hex
 *.map
 
-/tools/sc-dt/*
+arch/tools/sc-dt/*

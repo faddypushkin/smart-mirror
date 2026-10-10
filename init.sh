@@ -24,21 +24,23 @@ fi
 
 echo ""
 echo "Installing Linux utilities..."
-echo "(only arch is supported)"
+echo "(arch and debian are supported)"
 if [ "$ID" = "arch" ]; then
-	sudo pacman -S wget tar make
+	sudo pacman -S wget tar make python3
+elif [ "$ID" = "debian" ]; then
+	sudo apt install wget tar make python3
 fi
 echo ""
 
 echo ""
-if [ ! -d "./tools/sc-dt" ]; then
+if [ ! -d "./arch/tools/sc-dt" ]; then
 	echo "Install toolchain..."
 
-	cd ./tools
+	cd ./arch/tools
 	wget -q "https://drive.syntacore.com/s/8Atb2bcYjZS8eHE/download?path=/2025/2025.12&files=sc-dt-2025.12.tar.gz" -O sc-dt-toolchain.tar.gz
 	tar -xzf sc-dt-toolchain.tar.gz -C ./
 	rm -f sc-dt-toolchain.tar.gz
-	cd ../
+	cd ../../
 else
 	echo "Toolchain is already installed"
 fi
