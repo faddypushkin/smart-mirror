@@ -6,4 +6,8 @@
 *.hex
 *.map
 
+*.swp
+*.DS_Store
+
 arch/tools/sc-dt/*
+arch/tools/xpack-riscv-none-elf-gcc/*
