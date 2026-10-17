@@ -33,20 +33,6 @@ fi
 echo ""
 
 echo ""
-if [ ! -d "./arch/tools/sc-dt" ]; then
-	echo "Install toolchain..."
-
-	cd ./arch/tools
-	wget -q "https://drive.syntacore.com/s/8Atb2bcYjZS8eHE/download?path=/2025/2025.12&files=sc-dt-2025.12.tar.gz" -O sc-dt-toolchain.tar.gz
-	tar -xzf sc-dt-toolchain.tar.gz -C ./
-	rm -f sc-dt-toolchain.tar.gz
-	cd ../../
-else
-	echo "Toolchain is already installed"
-fi
-echo ""
-
-echo ""
 echo "--------------------------------------"
 echo "Development Workspace Ready [✔]"
 echo "--------------------------------------"
