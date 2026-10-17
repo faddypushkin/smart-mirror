@@ -4,12 +4,13 @@
  */
 
 #include <board.h>
+#include <compiler_attributes.h>
 
-void __attribute__((weak)) board_run(void)
+void __weak board_run(void)
 {
 }
 
-bool __attribute__((weak)) board_init(void)
+bool __weak board_init(void)
 {
 	return false;
 }

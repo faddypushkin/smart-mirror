@@ -4,8 +4,9 @@
  */
 
 #include <sysclock.h>
+#include <compiler_attributes.h>
 
-bool __attribute__((weak)) sysclock_init(void)
+bool __weak sysclock_init(void)
 {
-	return true;
+	return false;
 }
