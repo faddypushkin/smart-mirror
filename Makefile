@@ -16,8 +16,8 @@ SOURCE_DIRS	:= src $(ARCH_SOURCE_DIRS) $(PLATFORM_SOURCE_DIRS)
 INCLUDE_DIRS	:= include $(ARCH_INCLUDE_DIRS) $(PLATFORM_INCLUDE_DIRS)
 
 # Find source files, excluding directories named tools.
-SOURCES		:= $(shell find -L $(SOURCE_DIRS) -type d -name tools -prune -o \
-						  -type f 2>/dev/null)
+SOURCES		:= $(shell find $(SOURCE_DIRS) -type d -name tools -prune -o \
+       		                               -type f 2>/dev/null)
 C_SOURCES	:= $(filter %.c,$(SOURCES))
 ASM_SOURCES	:= $(filter %.S,$(SOURCES))
 
@@ -50,7 +50,7 @@ LDFLAGS := $(ARCH_FLAGS) \
 MAKEFLAGS += -j$(shell getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)
 
 # Default action: build all.
-.PHONY: all clean
+.PHONY: all clean checkpatch
 .DEFAULT_GOAL := all
 
 all: $(BUILD_DIR)/$(PROJECT_NAME).hex $(BUILD_DIR)/$(PROJECT_NAME).bin
@@ -84,3 +84,7 @@ $(BUILD_DIR)/%.o: %.S
 
 clean:
 	rm -rf $(BUILD_DIR)
+
+checkpatch:
+	git diff --cached --patch | perl ./tools/checkpatch/checkpatch.pl \
+	                            --no-tree --ignore SPDX_LICENSE_TAG,FILE_PATH_CHANGES
