@@ -4,20 +4,20 @@ BUILD_DIR    := build
 include platform/config.mk
 include arch/config.mk
 
-CC	= $(CROSS_COMPILE)gcc
-AS	= $(CROSS_COMPILE)gcc
-LD	= $(CROSS_COMPILE)gcc
+CC		= $(CROSS_COMPILE)gcc
+AS		= $(CROSS_COMPILE)gcc
+LD		= $(CROSS_COMPILE)gcc
 OBJCOPY	= $(CROSS_COMPILE)objcopy
 OBJDUMP	= $(CROSS_COMPILE)objdump
 SIZE	= $(CROSS_COMPILE)size
 
 # Source and header search paths.
-SOURCE_DIRS	:= src $(ARCH_SOURCE_DIRS) $(PLATFORM_SOURCE_DIRS)
+SOURCE_DIRS		:= src $(ARCH_SOURCE_DIRS) $(PLATFORM_SOURCE_DIRS)
 INCLUDE_DIRS	:= include $(ARCH_INCLUDE_DIRS) $(PLATFORM_INCLUDE_DIRS)
 
 # Find source files, excluding directories named tools.
 SOURCES		:= $(shell find $(SOURCE_DIRS) -type d -name tools -prune -o \
-       		                               -type f 2>/dev/null)
+										   -type f 2>/dev/null)
 C_SOURCES	:= $(filter %.c,$(SOURCES))
 ASM_SOURCES	:= $(filter %.S,$(SOURCES))
 
@@ -26,12 +26,26 @@ C_OBJECTS	:= $(patsubst %.c,$(BUILD_DIR)/%.o,$(C_SOURCES))
 ASM_OBJECTS	:= $(patsubst %.S,$(BUILD_DIR)/%.o,$(ASM_SOURCES))
 OBJECTS		:= $(C_OBJECTS) $(ASM_OBJECTS)
 
+# Select optimization and debug information for this build.
+BUILD ?= release
+OPT_FLAGS	= -O3
+DEBUG_FLAGS	=
+
+ifeq ($(BUILD),debug)
+OPT_FLAGS	:= -Og
+DEBUG_FLAGS	:= -g3
+DEFINES		+= DEBUG
+else ifneq ($(BUILD),release)
+$(error Unsupported BUILD='$(BUILD)' (use debug or release))
+endif
+
 # Compiler and linker options.
 INCLUDE_FLAGS	:= $(patsubst %,-I%,$(INCLUDE_DIRS))
 DEFINE_FLAGS	:= $(patsubst %,-D%,$(DEFINES))
-ASFLAGS := $(DEFINE_FLAGS) $(ARCH_FLAGS) $(INCLUDE_FLAGS)
+ASFLAGS := $(DEFINE_FLAGS) $(ARCH_FLAGS) $(INCLUDE_FLAGS) \
+	$(DEBUG_FLAGS)
 CFLAGS  := $(DEFINE_FLAGS) $(ARCH_FLAGS) $(INCLUDE_FLAGS) \
-	-Os -flto \
+	$(OPT_FLAGS) $(DEBUG_FLAGS) -Wall \
 	-MMD -MP \
 	-fplan9-extensions \
 	-fstrict-volatile-bitfields \
@@ -40,7 +54,6 @@ CFLAGS  := $(DEFINE_FLAGS) $(ARCH_FLAGS) $(INCLUDE_FLAGS) \
 	-ffunction-sections -fdata-sections \
 	-ffreestanding
 LDFLAGS := $(ARCH_FLAGS) \
-	-Os -flto \
 	-Wl,-L,$(LDSCRIPTS) \
 	-Wl,-T,$(LINKER_SCRIPT) \
 	-Wl,-Map,$(BUILD_DIR)/$(PROJECT_NAME).map \
@@ -87,4 +100,4 @@ clean:
 
 checkpatch:
 	git diff --cached --patch | perl ./tools/checkpatch/checkpatch.pl \
-	                            --no-tree --ignore SPDX_LICENSE_TAG,FILE_PATH_CHANGES
+								--no-tree --ignore SPDX_LICENSE_TAG,FILE_PATH_CHANGES
