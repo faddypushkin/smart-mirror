@@ -28,3 +28,21 @@ ARCH_UPLOADER_DIR := arch/tools/uploader
 DEFINES += MIK32V2
 ARCH_FLAGS := -specs=nano.specs -nostartfiles \
 	-march=rv32imc_zicsr_zifencei -mabi=ilp32
+
+# Flash via Blue-Prog.
+.PHONY += Blue-Prog
+Blue-Prog: $(BUILD_DIR)/$(PROJECT_NAME).hex
+	python3 $(ARCH_UPLOADER_DIR)/mik32_upload.py $(BUILD_DIR)/$(PROJECT_NAME).hex \
+		--run-openocd --openocd-exec=openocd \
+		--openocd-interface=arch/tools/openocd-scripts/interface/ftdi/Blue-Prog.cfg \
+		--openocd-target=$(ARCH_UPLOADER_DIR)/openocd-scripts/target/mik32.cfg \
+		--adapter-speed=4000
+
+# Flash via J-Link.
+.PHONY += jlink
+jlink: $(BUILD_DIR)/$(PROJECT_NAME).hex
+	python3 $(ARCH_UPLOADER_DIR)/mik32_upload.py $(BUILD_DIR)/$(PROJECT_NAME).hex \
+		--run-openocd --openocd-exec=openocd \
+		--openocd-interface=arch/tools/openocd-scripts/interface/ftdi/jlink.cfg \
+		--openocd-target=$(ARCH_UPLOADER_DIR)/openocd-scripts/target/mik32.cfg \
+		--adapter-speed=2000
