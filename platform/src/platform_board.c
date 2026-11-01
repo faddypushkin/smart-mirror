@@ -13,7 +13,7 @@
 static struct arch_gpio_chip gpio0 = { .gpio = GPIO_0 };
 static struct gpio_pin led = { .chip = &gpio0 };
 
-static struct arch_uart_port uart1 = { .nr = 1, .baud = 115200 };
+static struct arch_uart_port uart1 = { .nr = 0, .baud = 115200 };
 
 void board_run(void)
 {
@@ -28,6 +28,7 @@ void board_run(void)
 	step = 0;
 	gpio_core_pin_toggle(&led);
 	uart_core_write(port, str, sizeof(str));
+	uart_core_printf("step now = %d\r\n", step);
 }
 
 bool board_init(void)
