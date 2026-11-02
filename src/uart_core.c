@@ -52,21 +52,31 @@ int uart_core_printf(const char *format, ...)
 {
 	char buf[UART_CORE_PRINTF_BUF_LEN];
 	va_list ap;
-	int len;
+	int ret, i, len = 0;
 
 	if (!default_port)
 		return -ENODEV;
 
 	va_start(ap, format);
-
-	len = vsnprintf(buf, sizeof(buf), format, ap);
-	if (len > 0) {
-		len = len < sizeof(buf) ? len : sizeof(buf) - 1;
-		if (uart_core_write(default_port, buf, len) < 0)
-			return -EIO;
-	}
-
+	ret = vsnprintf(buf, sizeof(buf), format, ap);
 	va_end(ap);
+
+	if (ret < 0)
+		return ret;
+	if (ret > sizeof(buf))
+		return -ENOSPC;
+
+	for (i = 0; i < ret; ++i) {
+		if (buf[i] == '\n') {
+			if (uart_core_put_char(default_port, '\r') < 0)
+				return -EIO;
+			++len;
+		}
+
+		if (uart_core_put_char(default_port, buf[i]) < 0)
+			return -EIO;
+		++len;
+	}
 
 	return len;
 }

@@ -17,12 +17,14 @@
  * @retval		
  * @retval		
  */
-static int mik32_i2c_master_write(struct i2c_client *client, const void *buf, size_t size)
+static int mik32_i2c_master_write(struct i2c_client *client,
+								  const void *buf, size_t size)
 {
 	I2C_HandleTypeDef *i2c = client->adap->private_data;
 	HAL_StatusTypeDef ret;
 
-	ret = HAL_I2C_Master_Transmit(i2c, client->addr, buf, size, I2C_TIMEOUT_DEFAULT);
+	ret = HAL_I2C_Master_Transmit(i2c, client->addr, (uint8_t *) buf, size,
+								  I2C_TIMEOUT_DEFAULT);
 	if (ret != HAL_OK)
 		HAL_I2C_Reset(i2c);
 	if (i2c->Init.AutoEnd == I2C_AUTOEND_DISABLE)
@@ -41,12 +43,14 @@ static int mik32_i2c_master_write(struct i2c_client *client, const void *buf, si
  * @retval		
  * @retval		
  */
-static int mik32_i2c_master_read(struct i2c_client *client, void *buf, size_t size)
+static int mik32_i2c_master_read(struct i2c_client *client,
+								 void *buf, size_t size)
 {
 	I2C_HandleTypeDef *i2c = client->adap->private_data;
 	HAL_StatusTypeDef ret;
 
-	ret = HAL_I2C_Master_Receive(i2c, client->addr, buf, size, I2C_TIMEOUT_DEFAULT);
+	ret = HAL_I2C_Master_Receive(i2c, client->addr, buf, size,
+								 I2C_TIMEOUT_DEFAULT);
 	if (ret != HAL_OK)
 		HAL_I2C_Reset(i2c);
 	if (i2c->Init.AutoEnd == I2C_AUTOEND_DISABLE)

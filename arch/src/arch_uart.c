@@ -7,6 +7,9 @@
 
 #include <arch_uart.h>
 
+/* Max TXC polling iterations */
+#define MIK32_UART_TIMEOUT	1000
+
 /**
  * @brief		Transmit one character through a MIK32 USART
  *
@@ -18,13 +21,15 @@
 static int mik32_uart_put_char(struct uart_port *port, char ch)
 {
 	USART_HandleTypeDef *uart = port->private_data;
+	uint32_t timeout = MIK32_UART_TIMEOUT;
 
 	if (!uart)
 		return -EINVAL;
 
 	HAL_USART_WriteByte(uart, ch);
 	while (!HAL_USART_TXC_ReadFlag(uart))
-		;
+		if (--timeout == 0)
+			return -ETIMEDOUT;
 
 	return 0;
 }

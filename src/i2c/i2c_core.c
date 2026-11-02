@@ -5,7 +5,7 @@
 
 #include <errno.h>
 
-#include <i2c_core.h>
+#include <i2c/i2c_core.h>
 
 int i2c_core_master_write(struct i2c_client *client, const void *buf, size_t size)
 {
