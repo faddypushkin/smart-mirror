@@ -13,7 +13,7 @@
 static struct arch_gpio_chip gpio0 = { .gpio = GPIO_0 };
 static struct gpio_pin led = { .chip = &gpio0 };
 
-static struct arch_uart_port uart1 = { .nr = 0, .baud = 115200 };
+static struct arch_uart_port uart0 = { .nr = 0, .baud = 115200 };
 
 void board_run(void)
 {
@@ -38,9 +38,8 @@ bool board_init(void)
 	arch_gpio_init(&gpio0);
 	gpio_core_pin_config(&led, 9, GPIO_CORE_FLAG_DIR_OUT);
 
-	arch_uart_init(&uart1);
-
-	uart_core_write(&uart1, str, sizeof(str));
+	arch_uart_init(&uart0);
+	uart_core_write(&uart0, str, sizeof(str));
 
 	return true;
 }
