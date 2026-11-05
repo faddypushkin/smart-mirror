@@ -13,6 +13,9 @@
 
 #include <i2c/sht2x.h>
 
+#include <spi_core.h>
+#include <display.h>
+
 static struct arch_gpio_chip gpio0 = { .gpio = GPIO_0 };
 static struct gpio_pin led = { .chip = &gpio0 };
 
@@ -24,24 +27,20 @@ static struct sht2x sht = { .adap = &i2c1 };
 void board_run(void)
 {
 	static int step;
-	struct sht2x_temperature *temp;
-	struct sht2x_humidity *hum;
 
 	++step;
 	if (step < 10000)
 		return;
 
-	temp = sht2x_get_temperature(&sht);
-	hum  = sht2x_get_humidity(&sht);
 
 	step = 0;
 	gpio_core_pin_toggle(&led);
-	uart_core_printf("Temperature = %d.%d°C\n", temp->integer, temp->decimal);
-	uart_core_printf("Humidity    = %d.%d%%\n", hum->integer, hum->decimal);
 }
 
 bool board_init(void)
 {
+	struct sht2x_temperature *temp;
+	struct sht2x_humidity *hum;
 	char str[] = "Hello, world!\r\n";
 
 	arch_gpio_init(&gpio0);
@@ -52,6 +51,15 @@ bool board_init(void)
 
 	arch_i2c_init(&i2c1);
 	sht2x_init(&sht);
+
+	temp = sht2x_get_temperature(&sht);
+	hum  = sht2x_get_humidity(&sht);
+
+	uart_core_printf("Temperature = %d.%d°C\n", temp->integer, temp->decimal);
+	uart_core_printf("Humidity    = %d.%d%%\n", hum->integer, hum->decimal);
+
+	spi_init();
+	display_init();
 
 	return true;
 }
