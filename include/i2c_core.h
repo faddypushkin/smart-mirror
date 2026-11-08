@@ -9,7 +9,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-struct i2c_adapter;
 struct i2c_client;
 
 /**  */

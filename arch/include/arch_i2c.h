@@ -8,7 +8,7 @@
 
 #include <mik32_hal_i2c.h>
 
-#include <i2c/i2c_core.h>
+#include <i2c_core.h>
 
 /** Arch-specific I2C port descriptor */
 struct arch_i2c_adapter {

@@ -10,19 +10,35 @@
 #include <arch_gpio.h>
 #include <arch_uart.h>
 #include <arch_i2c.h>
+#include <arch_spi.h>
 
-#include <i2c/sht2x.h>
+#include <sensors/sht2x.h>
 
-#include <spi_core.h>
-#include <display.h>
+#include <platform_display.h>
 
 static struct arch_gpio_chip gpio0 = { .gpio = GPIO_0 };
+static struct arch_gpio_chip gpio1 = { .gpio = GPIO_1 };
+
 static struct gpio_pin led = { .chip = &gpio0 };
+
+static struct gpio_pin display_res = { .chip = &gpio1 };
+static struct gpio_pin display_dc  = { .chip = &gpio1 };
+static struct gpio_pin display_cs  = { .chip = &gpio1 };
+static struct gpio_pin display_bl  = { .chip = &gpio1 };
 
 static struct arch_uart_port uart0 = { .nr = 0, .baud = 115200 };
 
 static struct arch_i2c_adapter i2c1 = { .nr = 1 };
-static struct sht2x sht = { .adap = &i2c1 };
+static struct sensors_sht2x sht = { .client.adap = &i2c1 };
+
+struct arch_spi_controller spi0 = { .nr = 0 };
+struct st7789 display = { 	.dev = {
+								.controller = &spi0,
+								.cs = &display_cs,
+							},
+							.res	= &display_res,
+							.dc	= &display_dc,
+							.bl	= &display_bl };
 
 void board_run(void)
 {
@@ -32,6 +48,7 @@ void board_run(void)
 	if (step < 10000)
 		return;
 
+	platform_display_run(&display, &sht);
 
 	step = 0;
 	gpio_core_pin_toggle(&led);
@@ -39,27 +56,22 @@ void board_run(void)
 
 bool board_init(void)
 {
-	struct sht2x_temperature *temp;
-	struct sht2x_humidity *hum;
-	char str[] = "Hello, world!\r\n";
-
 	arch_gpio_init(&gpio0);
 	gpio_core_pin_config(&led, 9, GPIO_CORE_FLAG_DIR_OUT);
 
+	arch_gpio_init(&gpio1);
+	gpio_core_pin_config(&display_res, 11, GPIO_CORE_FLAG_DIR_OUT);
+	gpio_core_pin_config(&display_dc, 10, GPIO_CORE_FLAG_DIR_OUT);
+	gpio_core_pin_config(&display_cs, 9, GPIO_CORE_FLAG_DIR_OUT);
+	gpio_core_pin_config(&display_bl, 8, GPIO_CORE_FLAG_DIR_OUT);
+
 	arch_uart_init(&uart0);
-	uart_core_write(&uart0, str, sizeof(str));
 
 	arch_i2c_init(&i2c1);
-	sht2x_init(&sht);
+	sensors_sht2x_init(&sht, SENSORS_SHT2X_HOLD);
 
-	temp = sht2x_get_temperature(&sht);
-	hum  = sht2x_get_humidity(&sht);
-
-	uart_core_printf("Temperature = %d.%d°C\n", temp->integer, temp->decimal);
-	uart_core_printf("Humidity    = %d.%d%%\n", hum->integer, hum->decimal);
-
-	spi_init();
-	display_init();
+	arch_spi_init(&spi0);
+	platform_display_init(&display);
 
 	return true;
 }
