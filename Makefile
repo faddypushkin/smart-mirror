@@ -1,8 +1,20 @@
-PROJECT_NAME := smart-mirror
-BUILD_DIR    := build
+#
+# Project settings
+#
 
-include platform/config.mk
-include arch/config.mk
+PLAT ?=
+ARCH ?=
+
+BUILD_DIR := build/$(PLAT)
+
+ifneq ($(filter-out clean checkpatch,$(if $(MAKECMDGOALS),$(MAKECMDGOALS),all)),)
+ifeq ($(PLAT),)
+$(error Error: PLAT is required; use make PLAT=<platform>)
+endif
+endif
+
+-include platform/$(PLAT)/config.mk
+-include arch/$(ARCH)/config.mk
 
 CC		= $(CROSS_COMPILE)gcc
 AS		= $(CROSS_COMPILE)gcc
@@ -56,7 +68,7 @@ CFLAGS  := $(DEFINE_FLAGS) $(ARCH_FLAGS) $(INCLUDE_FLAGS) \
 LDFLAGS := $(ARCH_FLAGS) \
 	-Wl,-L,$(LDSCRIPTS) \
 	-Wl,-T,$(LINKER_SCRIPT) \
-	-Wl,-Map,$(BUILD_DIR)/$(PROJECT_NAME).map \
+	-Wl,-Map,$(BUILD_DIR)/$(PLAT).map \
 	-Wl,--gc-sections
 
 # Use all online processors for parallel builds; fall back to one job if getconf fails.
@@ -66,19 +78,19 @@ MAKEFLAGS += -j$(shell getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)
 .PHONY: all clean checkpatch
 .DEFAULT_GOAL := all
 
-all: $(BUILD_DIR)/$(PROJECT_NAME).hex $(BUILD_DIR)/$(PROJECT_NAME).bin
+all: $(BUILD_DIR)/$(PLAT).hex $(BUILD_DIR)/$(PLAT).bin
 
-$(BUILD_DIR)/$(PROJECT_NAME).elf: $(sort $(OBJECTS))
+$(BUILD_DIR)/$(PLAT).elf: $(sort $(OBJECTS))
 	@mkdir -p $(@D)
 	@echo "  ELF	$@"
 	@$(LD) $^ $(LDFLAGS) -o $@
 	$(SIZE) $@
 
-$(BUILD_DIR)/$(PROJECT_NAME).hex: $(BUILD_DIR)/$(PROJECT_NAME).elf
+$(BUILD_DIR)/$(PLAT).hex: $(BUILD_DIR)/$(PLAT).elf
 	@echo "  HEX	$@"
 	@$(OBJCOPY) -O ihex $< $@
 
-$(BUILD_DIR)/$(PROJECT_NAME).bin: $(BUILD_DIR)/$(PROJECT_NAME).elf
+$(BUILD_DIR)/$(PLAT).bin: $(BUILD_DIR)/$(PLAT).elf
 	@echo "  BIN	$@"
 	@$(OBJCOPY) -O binary $< $@
 
