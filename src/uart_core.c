@@ -51,8 +51,8 @@ int uart_core_write(struct uart_port *port, const void *buf, size_t size)
 int uart_core_printf(const char *format, ...)
 {
 	char buf[UART_CORE_PRINTF_BUF_LEN];
-	va_list ap;
 	int ret, i, len = 0;
+	va_list ap;
 
 	if (!default_port)
 		return -ENODEV;

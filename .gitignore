@@ -9,5 +9,5 @@
 *.swp
 *.DS_Store
 
-arch/tools/sc-dt/*
-arch/tools/xpack-riscv-none-elf-gcc/*
+arch/mik32/tools/sc-dt/*
+arch/mik32/tools/xpack-riscv-none-elf-gcc/*

@@ -57,7 +57,7 @@ int uart_core_write(struct uart_port *port, const void *buf, size_t size);
  * @brief		Print formatted output to the default UART port
  *
  * @param[in]	format	format string (vsnprintf-compatible)
- * @param[in]	...	arguments for \p format
+ * @param[in]	...	arguments for p format
  *
  * @retval		<0	error code
  * @retval		>=0	number of characters written
